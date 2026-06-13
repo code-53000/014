@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>弹射解谜 - 物理弹球闯关</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="game-container">
+    <div class="hud">
+      <div class="hud-item">
+        <span class="label">关卡</span>
+        <span class="value" id="level-display">1 / 10</span>
+      </div>
+      <div class="hud-item">
+        <span class="label">剩余次数</span>
+        <span class="value" id="shots-display">3</span>
+      </div>
+      <div class="hud-actions">
+        <button id="retry-btn" class="btn btn-secondary">重试</button>
+        <button id="next-btn" class="btn btn-primary" disabled>下一关</button>
+      </div>
+    </div>
+
+    <div class="canvas-wrapper">
+      <canvas id="game-canvas" width="800" height="600"></canvas>
+      <div id="start-screen" class="overlay">
+        <div class="overlay-content">
+          <h1>弹射解谜</h1>
+          <p class="subtitle">拖拽瞄准 · 反弹进洞 · 挑战10关</p>
+          <ul class="tips">
+            <li>🎯 拖拽小球调整方向和力度</li>
+            <li>⚡ 松手发射，利用墙壁反弹</li>
+            <li>🕳️ 把球送进目标洞即可过关</li>
+            <li>🎮 每关3次机会，加油！</li>
+          </ul>
+          <button id="start-btn" class="btn btn-primary btn-large">开始游戏</button>
+        </div>
+      </div>
+      <div id="win-screen" class="overlay hidden">
+        <div class="overlay-content">
+          <h2 class="win-title">🎉 过关！</h2>
+          <p id="win-subtitle" class="subtitle">干得漂亮！</p>
+          <div class="overlay-actions">
+            <button id="win-retry-btn" class="btn btn-secondary">再玩一次</button>
+            <button id="win-next-btn" class="btn btn-primary">下一关 →</button>
+          </div>
+        </div>
+      </div>
+      <div id="fail-screen" class="overlay hidden">
+        <div class="overlay-content">
+          <h2 class="fail-title">😢 失败</h2>
+          <p class="subtitle">机会用完了，再试一次吧！</p>
+          <button id="fail-retry-btn" class="btn btn-primary btn-large">重新挑战</button>
+        </div>
+      </div>
+      <div id="complete-screen" class="overlay hidden">
+        <div class="overlay-content">
+          <h2 class="win-title">🏆 全部通关！</h2>
+          <p class="subtitle">恭喜你完成了所有10关！</p>
+          <button id="complete-restart-btn" class="btn btn-primary btn-large">从头再来</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
