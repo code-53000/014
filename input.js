@@ -39,7 +39,7 @@ function getCanvasPos(e) {
 }
 
 function handleStart(e) {
-  if (gameState.phase !== 'idle') return;
+  if (gameState.phase !== 'idle' || gameState.isReplaying) return;
 
   const pos = getCanvasPos(e);
   const dx = pos.x - gameState.ball.x;
@@ -57,6 +57,7 @@ function handleStart(e) {
 }
 
 function handleMove(e) {
+  if (gameState.isReplaying) return;
   if (gameState.phase !== 'aiming' && gameState.phase !== 'idle') return;
 
   const pos = getCanvasPos(e);
@@ -75,6 +76,7 @@ function handleMove(e) {
 }
 
 function handleEnd(e) {
+  if (gameState.isReplaying) return;
   if (gameState.phase !== 'aiming') return;
 
   const pos = getCanvasPos(e);

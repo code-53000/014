@@ -162,44 +162,70 @@ function drawTrajectoryPrediction() {
   ctx.stroke();
 }
 
-function drawBall() {
-  const ball = gameState.ball;
-
-  if (gameState.phase === 'idle') {
+function drawBallAt(x, y, isReplay) {
+  if (gameState.phase === 'idle' && !isReplay) {
     const pulse = 0.5 + Math.sin(Date.now() / 500) * 0.3;
     const glowGradient = ctx.createRadialGradient(
-      ball.x, ball.y, BALL_RADIUS,
-      ball.x, ball.y, BALL_RADIUS + 20
+      x, y, BALL_RADIUS,
+      x, y, BALL_RADIUS + 20
     );
     glowGradient.addColorStop(0, `rgba(255, 159, 67, ${pulse * 0.4})`);
     glowGradient.addColorStop(1, 'rgba(255, 159, 67, 0)');
     ctx.fillStyle = glowGradient;
     ctx.beginPath();
-    ctx.arc(ball.x, ball.y, BALL_RADIUS + 20, 0, Math.PI * 2);
+    ctx.arc(x, y, BALL_RADIUS + 20, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  if (isReplay) {
+    const pulse = 0.7 + Math.sin(Date.now() / 150) * 0.3;
+    const glowGradient = ctx.createRadialGradient(
+      x, y, BALL_RADIUS * 0.5,
+      x, y, BALL_RADIUS * 3
+    );
+    glowGradient.addColorStop(0, `rgba(74, 222, 128, ${pulse * 0.5})`);
+    glowGradient.addColorStop(1, 'rgba(74, 222, 128, 0)');
+    ctx.fillStyle = glowGradient;
+    ctx.beginPath();
+    ctx.arc(x, y, BALL_RADIUS * 3, 0, Math.PI * 2);
     ctx.fill();
   }
 
   ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
   ctx.beginPath();
-  ctx.ellipse(ball.x + 2, ball.y + 4, BALL_RADIUS, BALL_RADIUS * 0.3, 0, 0, Math.PI * 2);
+  ctx.ellipse(x + 2, y + 4, BALL_RADIUS, BALL_RADIUS * 0.3, 0, 0, Math.PI * 2);
   ctx.fill();
 
   const ballGradient = ctx.createRadialGradient(
-    ball.x - 4, ball.y - 4, 2,
-    ball.x, ball.y, BALL_RADIUS
+    x - 4, y - 4, 2,
+    x, y, BALL_RADIUS
   );
-  ballGradient.addColorStop(0, '#ff9f43');
-  ballGradient.addColorStop(0.5, '#e94560');
-  ballGradient.addColorStop(1, '#c23a51');
+  if (isReplay) {
+    ballGradient.addColorStop(0, '#86efac');
+    ballGradient.addColorStop(0.5, '#4ade80');
+    ballGradient.addColorStop(1, '#22c55e');
+  } else {
+    ballGradient.addColorStop(0, '#ff9f43');
+    ballGradient.addColorStop(0.5, '#e94560');
+    ballGradient.addColorStop(1, '#c23a51');
+  }
   ctx.fillStyle = ballGradient;
   ctx.beginPath();
-  ctx.arc(ball.x, ball.y, BALL_RADIUS, 0, Math.PI * 2);
+  ctx.arc(x, y, BALL_RADIUS, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
   ctx.beginPath();
-  ctx.arc(ball.x - 4, ball.y - 4, 4, 0, Math.PI * 2);
+  ctx.arc(x - 4, y - 4, 4, 0, Math.PI * 2);
   ctx.fill();
+}
+
+function drawBall() {
+  drawBallAt(gameState.ball.x, gameState.ball.y, false);
+}
+
+function drawReplayBall() {
+  drawBallAt(gameState.replayBall.x, gameState.replayBall.y, true);
 }
 
 function drawFlyingTrail() {
@@ -213,6 +239,51 @@ function drawFlyingTrail() {
     ctx.lineTo(gameState.trail[i].x, gameState.trail[i].y);
   }
   ctx.stroke();
+}
+
+function drawReplayTrail() {
+  const trail = gameState.replayTrail;
+  if (!trail || trail.length < 2) return;
+
+  const progressIdx = Math.floor(
+    gameState.replayIndex + gameState.replayTimeAcc
+  );
+  const endIdx = Math.min(progressIdx, trail.length - 1);
+
+  if (endIdx < 1) return;
+
+  const gradient = ctx.createLinearGradient(
+    trail[0].x, trail[0].y,
+    trail[endIdx].x, trail[endIdx].y
+  );
+  gradient.addColorStop(0, 'rgba(74, 222, 128, 0.15)');
+  gradient.addColorStop(0.5, 'rgba(74, 222, 128, 0.5)');
+  gradient.addColorStop(1, 'rgba(74, 222, 128, 0.9)');
+
+  ctx.strokeStyle = gradient;
+  ctx.lineWidth = 4;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  ctx.moveTo(trail[0].x, trail[0].y);
+  for (let i = 1; i <= endIdx; i++) {
+    ctx.lineTo(trail[i].x, trail[i].y);
+  }
+  ctx.stroke();
+
+  for (let i = 0; i <= endIdx; i += 6) {
+    const t = i / Math.max(1, endIdx);
+    const alpha = 0.3 + t * 0.6;
+    const size = 2 + t * 3;
+    ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.8})`;
+    ctx.beginPath();
+    ctx.arc(trail[i].x, trail[i].y, size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.lineWidth = 1;
+  ctx.lineCap = 'butt';
+  ctx.lineJoin = 'miter';
 }
 
 function drawBackground() {
@@ -245,7 +316,14 @@ function render() {
     drawWall(wall);
   }
 
-  drawTrajectoryPrediction();
-  drawFlyingTrail();
-  drawBall();
+  if (gameState.isReplaying) {
+    drawReplayTrail();
+    drawReplayBall();
+  } else {
+    drawTrajectoryPrediction();
+    drawFlyingTrail();
+    if (!(gameState.phase === 'won' || gameState.phase === 'lost')) {
+      drawBall();
+    }
+  }
 }

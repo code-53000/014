@@ -6,3 +6,5 @@ const BUMPER_BOUNCE = 1.6;
 const MAX_SHOTS = 3;
 const DRAG_SENSITIVITY = 0.12;
 const GRAB_RADIUS = 50;
+const REPLAY_SPEED = 0.4;
+const REPLAY_TRAIL_MAX = 2000;

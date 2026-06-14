@@ -1,11 +1,13 @@
 let onRetryCallback = null;
 let onNextCallback = null;
 let onStartCallback = null;
+let onSkipReplayCallback = null;
 
-function initUI(onRetry, onNext, onStart) {
+function initUI(onRetry, onNext, onStart, onSkipReplay) {
   onRetryCallback = onRetry;
   onNextCallback = onNext;
   onStartCallback = onStart;
+  onSkipReplayCallback = onSkipReplay;
 
   document.getElementById('start-btn').addEventListener('click', () => {
     if (onStartCallback) onStartCallback();
@@ -31,6 +33,10 @@ function initUI(onRetry, onNext, onStart) {
 
   document.getElementById('complete-restart-btn').addEventListener('click', () => {
     if (onStartCallback) onStartCallback();
+  });
+
+  document.getElementById('skip-replay-btn').addEventListener('click', () => {
+    if (onSkipReplayCallback) onSkipReplayCallback();
   });
 }
 
@@ -59,4 +65,22 @@ function hideAllScreens() {
   document.getElementById('win-screen').classList.add('hidden');
   document.getElementById('fail-screen').classList.add('hidden');
   document.getElementById('complete-screen').classList.add('hidden');
+  hideSkipReplayButton();
+  hideReplayVignette();
+}
+
+function showSkipReplayButton() {
+  document.getElementById('skip-replay-btn').classList.remove('hidden');
+}
+
+function hideSkipReplayButton() {
+  document.getElementById('skip-replay-btn').classList.add('hidden');
+}
+
+function showReplayVignette() {
+  document.getElementById('replay-vignette').classList.add('active');
+}
+
+function hideReplayVignette() {
+  document.getElementById('replay-vignette').classList.remove('active');
 }
